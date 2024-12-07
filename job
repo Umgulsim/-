@@ -1,0 +1,73 @@
+git clone <repository_url>
+pip install ibm-watson
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_watson.natural_language_understanding_v1 import Features, EmotionOptions
+
+def emotion_predictor(text):
+    nlu = NaturalLanguageUnderstandingV1(
+        version='2021-08-01',
+        iam_apikey='your_api_key',
+        url='your_service_url'
+    )
+
+    response = nlu.analyze(
+        text=text,
+        features=Features(emotion=EmotionOptions())
+    ).get_result()
+
+    emotions = response['emotion']['document']
+    return emotions
+text = "I am feeling great today!"
+result = emotion_predictor(text)
+print(result)
+def emotion_predictor(text):
+    response = nlu.analyze(
+        text=text,
+        features=Features(emotion=EmotionOptions())
+    ).get_result()
+    
+    emotions = response['emotion']['document']
+    formatted_output = f"Joy: {emotions['joy']}, Sadness: {emotions['sadness']}, Anger: {emotions['anger']}, Fear: {emotions['fear']}, Disgust: {emotions['disgust']}"
+    
+    return formatted_output
+from .emotion import emotion_predictor
+import unittest
+from emotion_detector import emotion_predictor
+
+class TestEmotionPredictor(unittest.TestCase):
+    def test_emotion_predictor(self):
+        result = emotion_predictor("I am very happy")
+        self.assertIn("joy", result)
+
+if __name__ == '__main__':
+    unittest.main()
+python -m unittest test_emotion.py
+from flask import Flask, request, jsonify
+from emotion_detector import emotion_predictor
+
+app = Flask(__name__)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    text = request.json.get('text')
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+    
+    emotions = emotion_predictor(text)
+    return jsonify({"emotions": emotions})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+python server.py
+@app.route('/predict', methods=['POST'])
+def predict():
+    text = request.json.get('text')
+    if not text:
+        return jsonify({"error": "Text cannot be empty"}), 400
+    try:
+        emotions = emotion_predictor(text)
+        return jsonify({"emotions": emotions})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+pip install pylint
+pylint server.py
